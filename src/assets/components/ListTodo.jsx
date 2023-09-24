@@ -1,18 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 export const ListTodo = (props) => {
   const [Task, setTask] = useState(props.data.task);
   const [Completed, setCompleted] = useState(props.data.isCompleted);
   const [isEditing, setIsEditing] = useState(false);
+  const [editedTask, setEditedTask] = useState(Task);
+
+  const handleIsCompleted = () => {
+    setCompleted(!Completed);
+    props.functionIsCompleted(props.data.id);
+  };
 
   const handleEdit = () => {
-    setIsEditing(true);
+    setIsEditing(!isEditing);
   };
 
   const handleSave = () => {
+    console.log("saving:", editedTask);
+    setTask(editedTask);
     setIsEditing(false);
+    props.functionEdit(props.data.id, editedTask);
   };
-
+  
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditedTask(Task);
+  };
+  
   const handleDelete = () => {
     props.functionDelete(props.data.id);
   };
@@ -20,25 +34,39 @@ export const ListTodo = (props) => {
   return (
     <div className={`flex justify-between bg-slate-200 p-4 rounded-lg ${Completed ? 'line-through text-red-500' : ''}`}>
       <div className="flex">
-        <span>{Task}</span>
+        {isEditing ? (
+          <div className="flex items-center gap-2">
+            <input type="text" value={editedTask} onChange={(e) => setEditedTask(e.target.value)} className="p-3 rounded-lg shadow-sm focus:outline-none" />
+            <button onClick={handleSave} className='bg-green-500 hover:bg-green-600 p-3 rounded-lg'><span className='text-white font-semibold'>Save</span></button>
+            <button onClick={handleCancel} className='bg-red-500 hover:bg-red-600 p-3 rounded-lg'><span className='text-white font-semibold'>Cancel</span></button>
+          </div>
+        ) : (
+          <span>{Task}</span>
+        )}
       </div>
       <div className="flex items-center gap-4">
-        <input type="checkbox" checked={Completed} onChange={() => setCompleted(!Completed)} />
+        <input
+          type="checkbox"
+          checked={Completed}
+          onChange={() => {
+            handleIsCompleted(props.data.isCompleted);
+          }}
+        />
 
         {/* Edit */}
-        {isEditing ? (
-          <button>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="black" className="w-6 h-6">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-              />
-            </svg>
-          </button>
-        ) : (
-          <input type="text" value={text} onChange={(e) => setTodos(Todos.map((todo) => (todo.id === id ? { ...todo, text: e.target.value } : todo)))} />
-        )}
+        <button
+          onClick={() => {
+            handleEdit(props.data.id);
+          }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="black" className="w-6 h-6">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+            />
+          </svg>
+        </button>
 
         {/* Hapus */}
         <button
